@@ -97,7 +97,7 @@ class ParameterFinder
         $components = [];
         /** @var string $key */
         foreach ($parameters as $key => $_) {
-            $pos = strrpos($key, IComponent::NAME_SEPARATOR);
+            $pos = strrpos((string) $key, IComponent::NAME_SEPARATOR);
             if ($pos === false) {
                 continue;
             }
