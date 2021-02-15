@@ -143,9 +143,6 @@ class ParameterFinder
         return $info;
     }
 
-    /**
-     * @return ComponentReflection|null
-     */
     private function createReflection(ReflectionClass $reflection, string $component): ?ComponentReflection
     {
         $pos = strpos($component, IComponent::NAME_SEPARATOR);
@@ -166,7 +163,7 @@ class ParameterFinder
             if ($type->isBuiltin()) {
                 throw new TypeHintException(sprintf('Method %s::%s does not return a class.', $reflection->name, $method));
             }
-            $class = (string) $type;
+            $class = $type->getName();
             if ($class === 'self') {
                 $class = $element->getDeclaringClass()->getName();
             }
@@ -186,7 +183,7 @@ class ParameterFinder
     {
         $info = [];
         foreach ($reflection->getParameters() as $parameter) {
-            $type = $parameter->getType() !== null ? (string) $parameter->getType() : 'mixed';
+            $type = $parameter->getType() !== null ? $parameter->getType()->getName() : 'mixed';
             $optional = $parameter->isOptional();
             $info[$prefix.$parameter->getName()] = $this->createInfoObject($type, $optional);
         }
