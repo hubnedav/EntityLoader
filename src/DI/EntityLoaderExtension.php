@@ -20,8 +20,10 @@ use Arachne\EntityLoader\FilterInInterface;
 use Arachne\EntityLoader\FilterOutInterface;
 use Arachne\EntityLoader\Routing\RouterWrapper;
 use Arachne\ServiceCollections\DI\ServiceCollectionsExtension;
-use Nette\Application\IRouter;
 use Nette\DI\CompilerExtension;
+use Nette\Routing\Router;
+use Nette\Schema\Expect;
+use Nette\Schema\Schema;
 use Nette\Utils\AssertionException;
 
 /**
@@ -41,12 +43,12 @@ class EntityLoaderExtension extends CompilerExtension
      */
     const TAG_FILTER_OUT = 'arachne.entityLoader.filterOut';
 
-    /**
-     * @var mixed[]
-     */
-    public $defaults = [
-        'envelopes' => false,
-    ];
+    public function getConfigSchema(): Schema
+    {
+        return Expect::structure([
+            'envelopes' => Expect::bool()->default(false),
+        ]);
+    }
 
     /**
      * @var string[]
@@ -62,7 +64,6 @@ class EntityLoaderExtension extends CompilerExtension
 
     public function loadConfiguration(): void
     {
-        $this->validateConfig($this->defaults);
         $builder = $this->getContainerBuilder();
 
         /** @var ServiceCollectionsExtension $serviceCollectionsExtension */
@@ -119,12 +120,12 @@ class EntityLoaderExtension extends CompilerExtension
     {
         $builder = $this->getContainerBuilder();
 
-        $router = $builder->getByType(IRouter::class);
+        $router = $builder->getByType(Router::class);
 
         if ($router !== null) {
             $routerDefinition = $builder->getDefinition($router);
 
-            if ($routerDefinition->getClass() !== RouterWrapper::class) {
+            if ($routerDefinition->getType() !== RouterWrapper::class) {
                 $routerDefinition->setAutowired(false);
 
                 $builder->addDefinition($this->prefix('router'))
@@ -132,7 +133,7 @@ class EntityLoaderExtension extends CompilerExtension
                     ->setArguments(
                         [
                             'router' => '@'.$router,
-                            'envelopes' => $this->config['envelopes'],
+                            'envelopes' => $this->config->envelopes,
                         ]
                     );
             }
@@ -144,9 +145,7 @@ class EntityLoaderExtension extends CompilerExtension
         $extensions = $this->compiler->getExtensions($class);
 
         if ($extensions === []) {
-            throw new AssertionException(
-                sprintf('Extension "%s" requires "%s" to be installed.', get_class($this), $class)
-            );
+            throw new AssertionException(sprintf('Extension "%s" requires "%s" to be installed.', get_class($this), $class));
         }
 
         return reset($extensions);

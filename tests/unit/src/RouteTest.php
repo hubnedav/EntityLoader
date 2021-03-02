@@ -10,6 +10,7 @@ use Codeception\Test\Unit;
 use Eloquent\Phony\Phpunit\Phony;
 use Nette\Application\Request;
 use Nette\Http\Url;
+use Nette\Http\UrlScript;
 
 /**
  * @author Jáchym Toušek <enumag@gmail.com>
@@ -41,7 +42,7 @@ class RouteTest extends Unit
 
         $url = new Url('/');
         $url->setScheme('http');
-        self::assertSame('http:///?param1=param1_value&param2=param2_id', $route->constructUrl($request, $url));
+        self::assertSame('http:/?param1=param1_value&param2=param2_id', $route->constructUrl($request->toArray(), new UrlScript($url)));
     }
 
     public function testGlobalFilterOut(): void
@@ -75,7 +76,7 @@ class RouteTest extends Unit
 
         $url = new Url('/');
         $url->setScheme('http');
-        self::assertSame('http:///?param1=param1_value&param2=param2_id', $route->constructUrl($request, $url));
+        self::assertSame('http:/?param1=param1_value&param2=param2_id', $route->constructUrl($request->toArray(), new UrlScript($url)));
 
         $parameters = $stub->firstCall()->argument();
         self::assertInstanceOf(Envelope::class, $parameters['param1']);

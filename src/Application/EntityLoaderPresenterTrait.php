@@ -57,7 +57,9 @@ trait EntityLoaderPresenterTrait
 
         assert($request instanceof Request);
         $request = clone $request;
-        $this->unloader->filterOut($request);
+        $params = $request->toArray();
+        $this->unloader->filterOut($params);
+        $request->setParameters($params);
 
         $session = $this->getSession('Arachne.Application/requests');
         do {

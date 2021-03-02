@@ -10,7 +10,6 @@ use Arachne\EntityLoader\EntityUnloader;
 use Codeception\Test\Unit;
 use Eloquent\Phony\Mock\Handle\InstanceHandle;
 use Eloquent\Phony\Phpunit\Phony;
-use Nette\Application\Request;
 
 /**
  * @author Jáchym Toušek <enumag@gmail.com>
@@ -36,84 +35,76 @@ class RequestEntityUnloaderTest extends Unit
     public function testFilterOut(): void
     {
         $stub = Phony::stub();
-        $request = $this->createRequest($stub);
+        $params = $this->createRequestParams($stub);
 
         $this->entityUnloaderHandle
             ->filterOut
             ->with($stub)
             ->returns('value');
 
-        $this->requestEntityUnloader->filterOut($request);
+        $this->requestEntityUnloader->filterOut($params);
 
         self::assertSame(
             [
                'entity' => 'value',
             ],
-            $request->getParameters()
+            $params
         );
     }
 
     public function testFilterOutEmptyMapping(): void
     {
-        $request = $this->createRequest('value');
+        $params = $this->createRequestParams('value');
 
-        $this->requestEntityUnloader->filterOut($request);
+        $this->requestEntityUnloader->filterOut($params);
 
         self::assertSame(
             [
                'entity' => 'value',
             ],
-            $request->getParameters()
+            $params
         );
     }
 
     public function testFilterOutEnvelopes(): void
     {
         $stub = Phony::stub();
-        $request = $this->createRequest($stub);
+        $params = $this->createRequestParams($stub);
 
         $this->entityUnloaderHandle
             ->filterOut
             ->with($stub)
             ->returns('value');
 
-        $this->requestEntityUnloader->filterOut($request, true);
+        $this->requestEntityUnloader->filterOut($params, true);
 
         self::assertEquals(
             [
                'entity' => new Envelope($stub, 'value'),
             ],
-            $request->getParameters()
+            $params
         );
     }
 
     public function testFilterOutNullable(): void
     {
-        $request = $this->createRequest(null);
+        $params = $this->createRequestParams(null);
 
-        $this->requestEntityUnloader->filterOut($request);
+        $this->requestEntityUnloader->filterOut($params);
 
         self::assertSame(
             [
                'entity' => null,
             ],
-            $request->getParameters()
+            $params
         );
     }
 
     /**
      * @param mixed $value
-     *
-     * @return Request
      */
-    private function createRequest($value): Request
+    private function createRequestParams($value): array
     {
-        return new Request(
-            '',
-            'GET',
-            [
-                'entity' => $value,
-            ]
-        );
+        return ['entity' => $value];
     }
 }

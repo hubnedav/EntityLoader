@@ -5,18 +5,17 @@ declare(strict_types=1);
 namespace Arachne\EntityLoader\Routing;
 
 use Arachne\EntityLoader\Application\RequestEntityUnloader;
-use Nette\Application\IRouter;
-use Nette\Application\Request;
 use Nette\Http\IRequest;
-use Nette\Http\Url;
+use Nette\Http\UrlScript;
+use Nette\Routing\Router;
 
 /**
  * @author Jáchym Toušek <enumag@gmail.com>
  */
-class RouterWrapper implements IRouter
+class RouterWrapper implements Router
 {
     /**
-     * @var IRouter
+     * @var Router
      */
     private $router;
 
@@ -30,7 +29,7 @@ class RouterWrapper implements IRouter
      */
     private $envelopes;
 
-    public function __construct(IRouter $router, RequestEntityUnloader $unloader, bool $envelopes)
+    public function __construct(Router $router, RequestEntityUnloader $unloader, bool $envelopes)
     {
         $this->router = $router;
         $this->unloader = $unloader;
@@ -40,7 +39,7 @@ class RouterWrapper implements IRouter
     /**
      * {@inheritdoc}
      */
-    public function match(IRequest $httpRequest): ?Request
+    public function match(IRequest $httpRequest): ?array
     {
         return $this->router->match($httpRequest);
     }
@@ -48,11 +47,10 @@ class RouterWrapper implements IRouter
     /**
      * {@inheritdoc}
      */
-    public function constructUrl(Request $request, Url $refUrl): ?string
+    public function constructUrl(array $params, UrlScript $refUrl): ?string
     {
-        $request = clone $request;
-        $this->unloader->filterOut($request, $this->envelopes);
+        $this->unloader->filterOut($params, $this->envelopes);
 
-        return $this->router->constructUrl($request, $refUrl);
+        return $this->router->constructUrl($params, $refUrl);
     }
 }

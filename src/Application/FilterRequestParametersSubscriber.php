@@ -32,7 +32,7 @@ class FilterRequestParametersSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            RequestEvent::NAME => 'requestHandler',
+            RequestEvent::class => 'requestHandler',
         ];
     }
 

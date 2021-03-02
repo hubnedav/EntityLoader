@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Arachne\EntityLoader\Application;
 
 use Arachne\EntityLoader\EntityUnloader;
-use Nette\Application\Request;
 
 /**
  * @author Jáchym Toušek <enumag@gmail.com>
@@ -22,15 +21,13 @@ class RequestEntityUnloader
         $this->entityUnloader = $entityUnloader;
     }
 
-    public function filterOut(Request $request, bool $envelopes = false): void
+    public function filterOut(array &$params, bool $envelopes = false): void
     {
-        $parameters = $request->getParameters();
-        foreach ($parameters as &$value) {
+        foreach ($params as &$value) {
             if (is_object($value)) {
                 $parameter = $this->entityUnloader->filterOut($value);
                 $value = $envelopes ? new Envelope($value, $parameter) : $parameter;
             }
         }
-        $request->setParameters($parameters);
     }
 }

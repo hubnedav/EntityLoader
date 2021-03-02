@@ -12,7 +12,8 @@ use Nette\Application\UI\ComponentReflection;
 use Nette\Application\UI\Presenter;
 use Nette\Caching\Cache;
 use Nette\ComponentModel\IComponent;
-use Nette\DI\PhpReflection;
+use Nette\DI\Helpers;
+use Nette\Utils\Reflection;
 use Nette\Utils\Strings;
 use ReflectionClass;
 use ReflectionMethod;
@@ -197,7 +198,7 @@ class ParameterFinder
         foreach ($reflection->getPersistentParams() as $persistent => $_) {
             $parameter = new ReflectionProperty($reflection->getName(), $persistent);
             if (!$parameter->isStatic()) {
-                $type = (string) PhpReflection::parseAnnotation($parameter, 'var');
+                $type = (string) Helpers::parseAnnotation($parameter, 'var');
                 if ($type !== '') {
                     if (!(bool) Strings::match($type, '/^[[:alnum:]_\\\\]++$/')) {
                         throw new TypeHintException(sprintf('Type hint "%s" is not valid. Only alphanumeric characters, "_" and "\" are allowed.', $type));
@@ -212,7 +213,7 @@ class ParameterFinder
 
     private function normalizeType(string $type, ReflectionClass $class): string
     {
-        return isset(self::$simpleTypes[$type]) ? self::$simpleTypes[$type] : PhpReflection::expandClassName($type, $class);
+        return isset(self::$simpleTypes[$type]) ? self::$simpleTypes[$type] : Reflection::expandClassName($type, $class);
     }
 
     private function createInfoObject(string $type, bool $optional): stdClass
